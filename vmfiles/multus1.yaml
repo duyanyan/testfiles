@@ -1,0 +1,57 @@
+apiVersion: kubevirt.io/v1alpha2
+kind: VirtualMachineInstance
+metadata:
+  creationTimestamp: null
+  labels:
+    special: vmi-ovs1
+  name: vmi-ovs1
+spec:
+  domain:
+    devices:
+      disks:
+      - disk:
+          bus: virtio
+        name: registrydisk
+        volumeName: registryvolume
+      - disk:
+          bus: virtio
+        name: cloudinitdisk
+        volumeName: cloudinitvolume
+      interfaces:
+      - bridge: {}
+        name: default
+      - bridge: {}
+        name: ovs-net-1
+        macAddress: de:00:00:00:00:de
+      - bridge: {}
+        name: ovs-net-2-vlan
+        macAddress: DE:af:00:00:AF:de
+    machine:
+      type: ""
+    resources:
+      requests:
+        memory: 1024M
+  networks:
+  - name: default
+    pod: {}
+  - multus:
+      networkName: ovs-net-1
+    name: ovs-net-1
+  - multus:
+      networkName: ovs-net-2-vlan
+    name: ovs-net-2-vlan
+  terminationGracePeriodSeconds: 0
+  volumes:
+  - name: registryvolume
+    registryDisk:
+      image: kubevirt/fedora-cloud-registry-disk-demo:latest
+  - cloudInitNoCloud:
+      userData: |
+        #!/bin/bash
+        echo "fedora" |passwd fedora --stdin
+        ip addr add 11.0.1.11/24 dev eth1
+        ip link set dev eth1 up
+        ip addr add 11.0.2.11/24 dev eth2
+        ip link set dev eth2 up
+    name: cloudinitvolume
+  status: {}
