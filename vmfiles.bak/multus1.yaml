@@ -3,15 +3,15 @@ kind: VirtualMachineInstance
 metadata:
   creationTimestamp: null
   labels:
-    special: vmi-ovs2
-  name: vmi-ovs2
+    special: vmi-ovs1
+  name: vmi-ovs1
 spec:
   domain:
     devices:
       disks:
       - disk:
           bus: virtio
-        name: containerdisk
+        name: registrydisk
         volumeName: registryvolume
       - disk:
           bus: virtio
@@ -22,8 +22,10 @@ spec:
         name: default
       - bridge: {}
         name: ovs-net-1
+        macAddress: de:00:00:00:00:de
       - bridge: {}
         name: ovs-net-2-vlan
+        macAddress: DE:af:00:00:AF:de
     machine:
       type: ""
     resources:
@@ -47,9 +49,9 @@ spec:
       userData: |
         #!/bin/bash
         echo "fedora" |passwd fedora --stdin
-        ip addr add 11.0.1.12/24 dev eth1
+        ip addr add 11.0.1.11/24 dev eth1
         ip link set dev eth1 up
-        ip addr add 11.0.2.12/24 dev eth2
+        ip addr add 11.0.2.11/24 dev eth2
         ip link set dev eth2 up
     name: cloudinitvolume
   status: {}
