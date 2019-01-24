@@ -1,7 +1,6 @@
-apiVersion: kubevirt.io/v1alpha2
+apiVersion: kubevirt.io/v1alpha3
 kind: VirtualMachineInstance
 metadata:
-  creationTimestamp: null
   labels:
     special: vmi-ovs2
   name: vmi-ovs2
@@ -12,11 +11,9 @@ spec:
       - disk:
           bus: virtio
         name: containerdisk
-        volumeName: registryvolume
       - disk:
           bus: virtio
         name: cloudinitdisk
-        volumeName: cloudinitvolume
       interfaces:
       - bridge: {}
         name: default
@@ -40,9 +37,9 @@ spec:
     name: ovs-net-2-vlan
   terminationGracePeriodSeconds: 0
   volumes:
-  - name: registryvolume
-    registryDisk:
-      image: kubevirt/fedora-cloud-registry-disk-demo:latest
+  - containerDisk:
+      image: kubevirt/fedora-cloud-container-disk-demo:latest
+    name: containerdisk
   - cloudInitNoCloud:
       userData: |
         #!/bin/bash
@@ -51,5 +48,4 @@ spec:
         ip link set dev eth1 up
         ip addr add 11.0.2.12/24 dev eth2
         ip link set dev eth2 up
-    name: cloudinitvolume
-  status: {}
+    name: cloudinitdisk
