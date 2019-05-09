@@ -1,0 +1,43 @@
+apiVersion: kubevirt.io/v1alpha3
+kind: VirtualMachineInstance
+metadata:
+  labels:
+    special: vmi-fedora1
+  name: vmi-fedora1
+spec:
+  domain:
+    cpu:
+      cores: 1
+      model: Nehalem
+    devices:
+      disks:
+      - disk:
+          bus: virtio
+        name: containerdisk
+      - disk:
+          bus: virtio
+        name: cloudinitdisk
+      interfaces:
+      - bridge: {}
+        name: bridge-net 
+    machine:
+      type: ""
+    resources:
+      requests:
+        memory: 1024M
+  networks:
+  - name: bridge-net
+    multus: 
+      networkName: bridge-net
+  terminationGracePeriodSeconds: 0
+  volumes:
+  - containerDisk:
+      image: kubevirt/fedora-cloud-container-disk-demo:v0.11.0
+    name: containerdisk
+  - cloudInitNoCloud:
+      userData: |
+        #!/bin/bash
+        echo "fedora" |passwd fedora --stdin
+        ip addr add 11.0.1.12/24 dev eth0
+        ip link set dev eth0 up
+    name: cloudinitdisk

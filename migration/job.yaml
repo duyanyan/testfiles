@@ -1,0 +1,9 @@
+apiVersion: kubevirt.io/v1alpha3
+kind: VirtualMachineInstanceMigration
+metadata:
+  creationTimestamp: null
+  name: job1
+spec:
+  vmiName: vmi-masquerade
+status: {}
+
