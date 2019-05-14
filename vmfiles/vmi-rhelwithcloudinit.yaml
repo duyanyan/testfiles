@@ -3,8 +3,8 @@ apiVersion: kubevirt.io/v1alpha3
 kind: VirtualMachineInstance
 metadata:
   labels:
-    special: vmi-windows
-  name: vmi-windows
+    special: vmi-rhel
+  name: vmi-rhel
 spec:
   domain:
     clock:
@@ -24,6 +24,9 @@ spec:
       - disk:
           bus: sata
         name: pvcdisk
+      - disk:
+          bus: virtio
+        name: cloudinitdisk
       interfaces:
       - bridge: {}
         model: e1000
@@ -50,4 +53,11 @@ spec:
   volumes:
   - name: pvcdisk
     persistentVolumeClaim:
-      claimName: disk-windows
+      claimName: disk-rhel
+  - cloudInitNoCloud:
+      userData: |-
+        #cloud-config
+        password: redhat
+        chpasswd: { expire: False }
+    name: cloudinitdisk
+
