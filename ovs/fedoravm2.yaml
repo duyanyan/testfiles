@@ -1,0 +1,61 @@
+apiVersion: kubevirt.io/v1alpha3
+kind: VirtualMachine
+metadata:
+  labels:
+    kubevirt-vm: vm-vm-fedora-2
+    kubevirt.io/os: fedora-latest
+  name: vm-fedora-2
+spec:
+  running: true
+  template:
+    metadata:
+      labels:
+        kubevirt-vm: vm-vm-fedora-2
+        kubevirt.io/os: fedora-latest
+    spec:
+      domain:
+        cpu:
+          cores: 4
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: containerdisk
+          - disk:
+              bus: virtio
+            name: cloudinitdisk
+          interfaces:
+          - bridge: {}
+            name: default
+          - bridge: {}
+            name: ovs-net-1
+        machine:
+          type: ""
+        resources:
+          requests:
+            memory: 1Gi
+      networks:
+      - name: default
+        pod: {}
+      - multus:
+          networkName: ovs-net-1
+        name: ovs-net-1
+      volumes:
+      - containerDisk:
+          image: kubevirt/fedora-cloud-container-disk-demo:latest
+        name: containerdisk
+      - cloudInitNoCloud:
+          userData: |
+           #cloud-config
+            password: fedora
+            chpasswd: { expire: False }
+            bootcmd:
+              - dnf install -y iperf3 qemu-guest-agent
+ 
+            runcmd:
+              - systemctl start qemu-guest-agent
+              - nmcli con add type ethernet con-name eth1 ifname eth1
+              - nmcli con mod eth1 ipv4.addresses 172.16.0.102/24 ipv4.method manual
+              - ip link set mtu 1450 eth1
+        name: cloudinitdisk
+status:
