@@ -1,0 +1,16 @@
+---
+apiVersion: nmstate.io/v1alpha1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: linux-bridge-test-connectivity
+spec:
+  desiredState:
+    interfaces:
+    - name: br1test
+      type: linux-bridge
+      state: up
+      bridge:
+        options:
+          stp:
+            enabled: false
+        port: []
